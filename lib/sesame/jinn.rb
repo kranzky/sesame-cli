@@ -1,5 +1,4 @@
 require 'highline/import'
-require 'json'
 require 'i18n'
 require 'clipboard'
 
