@@ -33,6 +33,7 @@ Gem::Specification.new do |s|
     "lib/sesame/fail.rb",
     "lib/sesame/jinn.rb",
     "lib/sesame/lang/en.yml",
+    "sesame-cli.gemspec",
     "sesame.gemspec",
     "spec/spec_helper.rb"
   ]
