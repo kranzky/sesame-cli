@@ -21,7 +21,7 @@ passphrase; omit `--echo` to have this copied to the clipboard instead.
 
 ```
 $ gem install sesame
-$ sesame --echo
+$ sesame --echo --interactive
 ╔═════════════════════════════════════╗
 ║ ┏━━━┓ ┏━━━┓ ┏━━━┓  ┏━┓  ┏┓ ┏┓ ┏━━━┓ ║
 ║ ┗━╋━┓ ┣━━┫  ┗━╋━┓ ┏┻━┻┓ ┃┗┳┛┃ ┣━━┫  ║
@@ -45,9 +45,9 @@ mammal glue wage paper store detail weave date
 sky tea ant ice
 ```
 
-You will notice that Sesame enters interactive mode, allowing you to issue
-multiple commands in a single session. When you exit from interactive mode, the
-cave will be locked with a short code.
+You will notice that Sesame enters interactive mode when the `--interactive`
+argument is given, allowing you to issue multiple commands in a single session.
+When you exit from interactive mode, the cave will be locked with a short code.
 
 Remembering the Passphrase
 --------------------------
@@ -186,7 +186,7 @@ usage: ./bin/sesame [options]
     -h, --help         all of that up there ^
 ```
 
-You can issue commands directly, which will suppress interactive mode.
+You can issue commands directly, rather than running in interactive mode.
 
 ```
 $ sesame -qegs twitter
@@ -206,14 +206,15 @@ stored.
 
 Sesame will also look for a file named `.sesamerc` or `sesame.cfg` in the
 current directory and in your home directory. This file should be in the JSON
-format, and can specify the `path`, `user`, `echo` and `quiet` options. For
-example, here is the configuration file used by Lloyd Kranzky:
+format, and can specify the `path`, `user`, `echo`, `interactive` and `quiet`
+options. For example, here is the configuration file used by Lloyd Kranzky:
 
 ```
   {
     "path": "~/Dropbox",
     "user": "lloyd@kranzky.com",
     "echo": "false",
+    "interactive": "false",
     "quiet": "true"
   }
 ```
