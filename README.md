@@ -1,5 +1,5 @@
 [![Gem Version](https://badge.fury.io/rb/sesame-cli.svg)](http://badge.fury.io/rb/sesame-cli)
-[![Dependency Status](https://gemnasium.com/kranzky/sesame-cli.png)](https://gemnasium.com/kranzky/sesame-cli)
+[![Dependency Status](https://gemnasium.com/badges/github.com/kranzky/sesame-cli.svg)](https://gemnasium.com/github.com/kranzky/sesame-cli)
 [![Codeship Status for kranzky/sesame-cli](https://app.codeship.com/projects/01008000-26b3-0136-297f-36c36926d30f/status?branch=master)](https://app.codeship.com/projects/286882)
 
 Sesame
