@@ -59,7 +59,7 @@ home, from the front door to the bathroom).
 
 * I enter the front door. On the side table a mammal is glueing their wages together.
 * Turning left into the kitchen, I see the drawer where I store my paper.
-* Looking down the corridor, I notice a detailed weave of a date on the bathroom door.
+* Looking down the corridor, I notice a detailed weaving of a date on the bathroom door.
 
 Lame perhaps, but easier to remember than `58qWT6jHpA566MX` (and just as
 secure).
