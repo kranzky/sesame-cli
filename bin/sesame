@@ -22,7 +22,7 @@ opts =
       o.bool '-d', '--delete', 'remove an existing service and username'
       o.bool '-q', '--quiet', 'silence the jinn'
       o.on '-v', '--version', 'print the version and exit' do
-        say(Sesame::Cave.VERSION)
+        say(File.read(File.join(File.dirname(__FILE__), '..', 'VERSION')))
         exit
       end
       o.on '-h', '--help', 'all of that up there ^' do
