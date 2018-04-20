@@ -11,7 +11,8 @@ Creating a Cave
 ---------------
 
 Your passwords are stored in a secure cave, guarded by a Jinn that will only
-grant access if the correct magic words are uttered.
+grant access if the correct magic words are uttered. These words also known as a
+passphrase, or a sesame seed 😩
 
 To get started, install Sesame and create a new cave. Note that the `--echo`
 argument is used to display sensitive information such as the generated
