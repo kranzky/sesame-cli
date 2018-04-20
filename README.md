@@ -46,7 +46,7 @@ sky tea ant ice
 
 You will notice that Sesame enters interactive mode, allowing you to issue
 multiple commands in a single session. When you exit from interactive mode, the
-cave will be locked with a short phrase.
+cave will be locked with a short code.
 
 Remembering the Passphrase
 --------------------------
@@ -55,6 +55,13 @@ By default, Sesame generates an eight-word passphrase that is used to secure
 your cave. Try to remember it in groups of two or three consecutive words, and
 associate those words with something you know well (such as walking through your
 home, from the front door to the bathroom).
+
+* I enter the front door. On the side table a mammal is glueing their wages together.
+* Turning left into the kitchen, I see the drawer where I store my paper.
+* Down the corridor I see a detailed weave of a date on the bathroom door.
+
+Lame perhaps, but easier to remember than `58qWT6jHpA566MX` (and just as
+secure).
 
 If you must write the passphrase down, please make sure to store the paper that
 you write it on securely (ideally in a safe).
