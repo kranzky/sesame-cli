@@ -10,4 +10,5 @@ pkg
 .ruby-version
 .ruby-gemset
 tmp
+.byebug_history
 TODO.txt
