@@ -1,6 +1,6 @@
-[![Gem Version](https://badge.fury.io/rb/megahal.svg)](http://badge.fury.io/rb/megahal)
-[![Dependency Status](https://gemnasium.com/kranzky/megahal.png)](https://gemnasium.com/kranzky/megahal)
-[![Codeship Status for jasonhutchens/megahal](https://codeship.com/projects/8f43e890-e5b4-0132-1716-266c7b4e6c8b/status?branch=master)](https://codeship.com/projects/82076)
+[![Gem Version](https://badge.fury.io/rb/sesame-cli.svg)](http://badge.fury.io/rb/sesame-cli)
+[![Dependency Status](https://gemnasium.com/kranzky/sesame-cli.png)](https://gemnasium.com/kranzky/sesame-cli)
+[![Codeship Status for kranzky/sesame-cli](https://app.codeship.com/projects/01008000-26b3-0136-297f-36c36926d30f/status?branch=master)](https://app.codeship.com/projects/286882)
 
 Sesame
 ======
