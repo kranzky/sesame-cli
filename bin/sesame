@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 require 'sesame'
 require 'slop'
@@ -31,10 +32,10 @@ opts =
       end
     end
   rescue Slop::Error => e
-    say(e.message + " (try --help)")
+    say(e.message + ' (try --help)')
     exit 1
   end
-if opts.arguments.count > 0
+if opts.arguments.count.positive?
   say("extraneous arguments: #{opts.arguments.join(' ')} (try --help)")
   exit 1
 end

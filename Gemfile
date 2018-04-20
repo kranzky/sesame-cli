@@ -1,4 +1,6 @@
-source "https://rubygems.org"
+# frozen_string_literal: true
+
+source 'https://rubygems.org'
 
 gem 'bases', '~> 1.0'
 gem 'clipboard', '~> 1.1'

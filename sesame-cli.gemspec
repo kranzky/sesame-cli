@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib".freeze]
   s.authors = ["Jason Hutchens".freeze, "Jack Casey".freeze]
   s.date = "2018-04-20"
-  s.description = "Sesame is a simple password manager for the command-line.".freeze
+  s.description = "\u{1F9DE} - \"Sesame is a simple password manager for the command-line!\"".freeze
   s.email = "jasonhutchens@gmail.com".freeze
   s.executables = ["sesame".freeze]
   s.extra_rdoc_files = [
@@ -34,14 +34,13 @@ Gem::Specification.new do |s|
     "lib/sesame/jinn.rb",
     "lib/sesame/lang/en.yml",
     "sesame-cli.gemspec",
-    "sesame.gemspec",
     "spec/spec_helper.rb"
   ]
   s.homepage = "http://github.com/kranzky/sesame-cli".freeze
   s.licenses = ["UNLICENSE".freeze]
   s.required_ruby_version = Gem::Requirement.new("~> 2.1".freeze)
   s.rubygems_version = "2.7.3".freeze
-  s.summary = "Sesame is a simple password manager for the command-line.".freeze
+  s.summary = "\u{1F9DE} - \"Sesame is a simple password manager for the command-line!\"".freeze
 
   if s.respond_to? :specification_version then
     s.specification_version = 4
@@ -60,6 +59,7 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<jeweler>.freeze, ["~> 2.3.9"])
       s.add_development_dependency(%q<rdoc>.freeze, ["~> 6.0"])
       s.add_development_dependency(%q<rspec>.freeze, ["~> 3.7"])
+      s.add_development_dependency(%q<rubocop>.freeze, ["~> 0.55"])
       s.add_development_dependency(%q<simplecov>.freeze, ["~> 0.15"])
       s.add_development_dependency(%q<yard>.freeze, ["~> 0.9"])
     else
@@ -76,6 +76,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<jeweler>.freeze, ["~> 2.3.9"])
       s.add_dependency(%q<rdoc>.freeze, ["~> 6.0"])
       s.add_dependency(%q<rspec>.freeze, ["~> 3.7"])
+      s.add_dependency(%q<rubocop>.freeze, ["~> 0.55"])
       s.add_dependency(%q<simplecov>.freeze, ["~> 0.15"])
       s.add_dependency(%q<yard>.freeze, ["~> 0.9"])
     end
@@ -93,6 +94,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<jeweler>.freeze, ["~> 2.3.9"])
     s.add_dependency(%q<rdoc>.freeze, ["~> 6.0"])
     s.add_dependency(%q<rspec>.freeze, ["~> 3.7"])
+    s.add_dependency(%q<rubocop>.freeze, ["~> 0.55"])
     s.add_dependency(%q<simplecov>.freeze, ["~> 0.15"])
     s.add_dependency(%q<yard>.freeze, ["~> 0.9"])
   end

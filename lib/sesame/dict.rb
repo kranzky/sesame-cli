@@ -1,13 +1,14 @@
+# frozen_string_literal: true
+
 module Sesame
+  # TODO
   class Dict
     def self.load
-      self._words.split("\n").map(&:strip)
+      _words.split("\n").map(&:strip)
     end
-    
-    private
 
     def self._words
-      <<-EOP
+      <<-DICTIONARY
         ant
         box
         cat
@@ -2056,7 +2057,7 @@ module Sesame
         zebra
         zinc
         zone
-      EOP
+      DICTIONARY
     end
   end
 end

@@ -1,0 +1,6 @@
+AllCops:
+  TargetRubyVersion: 2.5
+  Exclude:
+    - sesame-cli.gemspec 
+Metrics:
+  Enabled: false

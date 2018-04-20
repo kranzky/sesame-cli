@@ -1,8 +1,11 @@
+# frozen_string_literal: true
+
 require 'highline/import'
 require 'i18n'
 require 'clipboard'
 
 module Sesame
+  # TODO
   class Jinn
     def initialize(opts)
       @opts = opts
@@ -53,13 +56,13 @@ module Sesame
 
     def _welcome
       return if @opts[:quiet]
-      say(HighLine.color(<<~EOS, :bold, :yellow))
+      say(HighLine.color(<<~WELCOME, :bold, :yellow))
         ╔═════════════════════════════════════╗
         ║ ┏━━━┓ ┏━━━┓ ┏━━━┓  ┏━┓  ┏┓ ┏┓ ┏━━━┓ ║
         ║ ┗━╋━┓ ┣━━┫  ┗━╋━┓ ┏┻━┻┓ ┃┗┳┛┃ ┣━━┫  ║
         ║ ┗━━━┛ ┗━━━┛ ┗━━━┛ ┗   ┛ ┗   ┛ ┗━━━┛ ║
         ╚═════════════════════════════════════╝
-      EOS
+      WELCOME
     end
 
     def _parse
@@ -77,13 +80,12 @@ module Sesame
         @opts[:path] = _load_config || ENV.fetch('SESAME_PATH', '.')
       end
       @opts[:path] = File.expand_path(@opts[:path])
-      unless Dir.exist?(@opts[:path])
-        say("No such directory: #{@opts[:path]}")
-        exit 2
-      end
+      return if Dir.exist?(@opts[:path])
+      say("No such directory: #{@opts[:path]}")
+      exit 2
     end
 
-    def _load_config(base=".")
+    def _load_config(base = '.')
       path = File.join(base, '.sesamerc')
       if File.exist?(path)
         File.read(path)
@@ -121,31 +123,31 @@ module Sesame
 
     def _prompt
       done = false
-      _info("prompt")
+      _info('prompt')
       choose do |menu|
         menu.prompt = "\n> "
         menu.shell = true
-        menu.choice(:list, "Display all of the services and users in your Sesame store.") do |command, args|
+        menu.choice(:list, 'Display all of the services and users in your Sesame store.') do |_, args|
           _set_opts(args)
           _list
         end
-        menu.choice(:add, "Add a new service and user to your Sesame store.") do |command, args|
+        menu.choice(:add, 'Add a new service and user to your Sesame store.') do |_, args|
           _set_opts(args)
           _add
         end
-        menu.choice(:get, "Retrieve the pass phrase for a service and user.") do |command, args|
+        menu.choice(:get, 'Retrieve the pass phrase for a service and user.') do |_, args|
           _set_opts(args)
           _get
         end
-        menu.choice(:next, "Generate a new passphrase for a service and user.") do |comnmand, args|
+        menu.choice(:next, 'Generate a new passphrase for a service and user.') do |_, args|
           _set_opts(args)
           _next
         end
-        menu.choice(:delete, "Remove a service and user from the Sesame store.") do |command, args|
+        menu.choice(:delete, 'Remove a service and user from the Sesame store.') do |_, args|
           _set_opts(args)
           _delete
         end
-        menu.choice(:exit, "Close Sesame.") do
+        menu.choice(:exit, 'Close Sesame.') do
           done = true
         end
       end
@@ -154,12 +156,12 @@ module Sesame
       _error(e.message)
     end
 
-    def _error(details="An error occurred")
+    def _error(details = 'An error occurred')
       message =
         if @opts[:quiet]
-          _trans("error", details: details)
+          _trans('error', details: details)
         else
-          _trans("jinn.error", details: details)
+          _trans('jinn.error', details: details)
         end
       say(HighLine.color(message, :bold, :red))
     end
@@ -167,40 +169,40 @@ module Sesame
     def _new
       words = nil
       if @opts.reconstruct?
-        _info("reconstruct")
-        words = ask("🔑  ") { |q| q.echo = "*" }
+        _info('reconstruct')
+        words = ask('🔑  ') { |q| q.echo = '*' }
       end
       phrase = @sesame.create!(words)
       if words.nil?
-        _info("new")
+        _info('new')
         _show(phrase)
       else
-        _info("reconstructed")
+        _info('reconstructed')
       end
     end
 
     def _open
-      _info("open")
-      words = ask("🔑  ") { |q| q.echo = "*" }
+      _info('open')
+      words = ask('🔑  ') { |q| q.echo = '*' }
       @sesame.open(words)
-      _info("path", path: @sesame.path)
+      _info('path', path: @sesame.path)
     end
 
     def _unlock
-      _info("unlock")
-      key = ask("🔑  ") { |q| q.echo = "*" }
+      _info('unlock')
+      key = ask('🔑  ') { |q| q.echo = '*' }
       @sesame.unlock(key)
-      _info("path", path: @sesame.path)
+      _info('path', path: @sesame.path)
     end
 
     def _forget
-      _info("forgot")
+      _info('forgot')
       @sesame.forget
     end
 
     def _list
-      _info("list")
-      if @opts[:service].nil? || @opts[:service].length == 0
+      _info('list')
+      if @opts[:service].nil? || @opts[:service].length.zero?
         @sesame.index.each do |service, users|
           next if service == 'sesame'
           if users.count > 1
@@ -211,8 +213,8 @@ module Sesame
         end
       else
         users = @sesame.index[@opts[:service]]
-        raise Fail, "No such service found, you must be thinking of some other cave" if users.nil? || @opts[:service] == "sesame"
-        users.each do |user, index|
+        raise Fail, 'No such service found, you must be thinking of some other cave' if users.nil? || @opts[:service] == 'sesame'
+        users.each do |user, _|
           say(user)
         end
       end
@@ -220,53 +222,53 @@ module Sesame
 
     def _get
       phrase = @sesame.get(*_question, @opts[:offset])
-      _info("get", @sesame.item)
+      _info('get', @sesame.item)
       _show(phrase)
     end
 
     def _add
       phrase = @sesame.insert(*_question(true), @opts[:offset])
-      _info("add", @sesame.item)
+      _info('add', @sesame.item)
       _show(phrase)
     end
 
     def _next
       phrase = @sesame.update(*_question, @opts[:offset])
       if phrase.nil?
-        _info("next_key")
+        _info('next_key')
       else
-        _info("next", @sesame.item)
+        _info('next', @sesame.item)
         _show(phrase)
       end
     end
 
     def _delete
       phrase = @sesame.delete(*_question)
-      _info("delete")
+      _info('delete')
       _show(phrase)
     end
 
-    def _lock(silent=false)
+    def _lock(silent = false)
       key = @sesame.lock
       return if silent
-      _info("lock")
+      _info('lock')
       _show(key)
     end
 
-    def _info(message, args={})
+    def _info(message, args = {})
       message =
         if @opts[:quiet]
           _trans(message, args)
         else
           _trans("jinn.#{message}", args)
         end
-      return if message.nil? || message.length == 0
+      return if message.nil? || message.length.zero?
       say(HighLine.color(message, :bold, :green))
     end
 
     def _trans(message, args)
       retval = I18n.t(message, args)
-      if retval =~ /^translation missing/
+      if retval.match?(/^translation missing/)
         retval =
           if @opts[:echo]
             I18n.t("#{message}_echo", args)
@@ -286,21 +288,22 @@ module Sesame
     end
 
     def _set_opts(args)
-      args = args.split(" ").map(&:strip).map(&:downcase)
-      return if args.count == 0
+      args = args.split(' ').map(&:strip).map(&:downcase)
+      return if args.count.zero?
       @opts[:service] = args.first if args.count < 3
       @opts[:user] = args.last if args.count == 2
     end
 
-    def _question(user_required=false)
-      service, user = @opts[:service], @opts[:user]
+    def _question(user_required = false)
+      service = @opts[:service]
+      user = @opts[:user]
       if service.nil?
-        _info("service")
-        service = ask("🏷  ")
+        _info('service')
+        service = ask('🏷  ')
       end
       if user.nil? && (user_required || !@sesame.unique?(service))
-        _info("user")
-        user = ask("👤  ")
+        _info('user')
+        user = ask('👤  ')
       end
       [service.downcase, user.nil? ? nil : user.downcase]
     end
