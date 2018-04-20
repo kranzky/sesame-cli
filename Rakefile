@@ -21,7 +21,7 @@ Jeweler::Tasks.new do |gem|
   gem.description = %Q{Sesame is a simple password manager for the command-line.}
   gem.email = "jasonhutchens@gmail.com"
   gem.authors = ["Jason Hutchens", "Jack Casey"]
-  gem.required_ruby_version = "~> 2.5"
+  gem.required_ruby_version = "~> 2.1"
   # dependencies defined in Gemfile
 end
 Jeweler::RubygemsDotOrgTasks.new
