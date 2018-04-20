@@ -14,7 +14,7 @@ require 'rake'
 require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://guides.rubygems.org/specification-reference/ for more options
-  gem.name = "sesame"
+  gem.name = "sesame-cli"
   gem.homepage = "http://github.com/kranzky/sesame-cli"
   gem.license = "UNLICENSE"
   gem.summary = %Q{Sesame is a simple password manager for the command-line.}
