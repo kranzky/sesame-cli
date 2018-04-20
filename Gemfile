@@ -15,6 +15,7 @@ group :development do
   gem 'jeweler', '~> 2.3.9'
   gem 'rdoc', '~> 6.0'
   gem 'rspec', '~> 3.7'
+  gem 'rubocop', '~> 0.55'
   gem 'simplecov', '~> 0.15'
   gem 'yard', '~> 0.9'
 end

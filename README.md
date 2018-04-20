@@ -5,7 +5,8 @@
 Sesame
 ======
 
-Sesame is a simple password manager for the command-line.
+Sesame is a simple password manager for the command-line. See the [full
+documentation](http://www.rubydoc.info/gems/sesame-cli).
 
 Creating a Cave
 ---------------
