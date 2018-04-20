@@ -14,6 +14,7 @@ Gem::Specification.new do |s|
   s.date = "2018-04-20"
   s.description = "Sesame is a simple password manager for the command-line.".freeze
   s.email = "jasonhutchens@gmail.com".freeze
+  s.executables = ["sesame".freeze]
   s.extra_rdoc_files = [
     "README.md"
   ]
@@ -25,7 +26,13 @@ Gem::Specification.new do |s|
     "Rakefile",
     "UNLICENSE",
     "VERSION",
+    "bin/sesame",
     "lib/sesame.rb",
+    "lib/sesame/cave.rb",
+    "lib/sesame/fail.rb",
+    "lib/sesame/jinn.rb",
+    "lib/sesame/lang/en.yml",
+    "sesame.gemspec",
     "spec/spec_helper.rb"
   ]
   s.homepage = "http://github.com/kranzky/sesame-cli".freeze
