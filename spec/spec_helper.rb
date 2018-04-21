@@ -1,14 +1,16 @@
 # frozen_string_literal: true
 
 require 'simplecov'
+require 'awesome_print'
+require 'byebug'
 
-module SimpleCov
-  class Configuration
-    def clean_filters
-      @filters = []
-    end
+# rubocop:disable Style/ClassAndModuleChildren
+module SimpleCov::Configuration
+  def clean_filters
+    @filters = []
   end
 end
+# rubocop:enable Style/ClassAndModuleChildren
 
 SimpleCov.configure do
   clean_filters

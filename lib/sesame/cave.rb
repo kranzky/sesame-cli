@@ -12,7 +12,7 @@ module Sesame
   class Cave
     attr_accessor :item
 
-    def initialize(path)
+    def initialize(path, pow = 30)
       @words = Dict.load
       raise Fail, 'Unexpected dictionary length' unless @words.length == 2048
       @cave = File.expand_path(File.join(path, 'sesame.cave'))
@@ -20,6 +20,7 @@ module Sesame
       @store = nil
       @dirty = false
       @item = nil
+      @pow = pow
     end
 
     def path
@@ -42,7 +43,7 @@ module Sesame
       @dirty
     end
 
-    def create!(phrase)
+    def create!(phrase = nil)
       raise Fail, 'Cannot create; store already exists' if exists? || locked? || open?
       @store = {}
       insert('sesame', 'cave')
@@ -57,13 +58,16 @@ module Sesame
           raise Fail, 'Unrecognised word used' unless words.all? { |word| @words.include?(word) }
           Bases.val(words).in_base(@words).to_base(16)
         end
+      number.prepend('0') while number.length < 22
       @secret = _create_secret(number)
       # convert the hex string to a word string (base 2048)
       words = Bases.val(number).in_base(16).to_base(@words, array: true)
       # make sure it's always 8 words long (i.e. zero-pad the phrase)
       words.unshift(@words[0]) while words.length < 8
       # sanity check the conversion
-      raise Fail, 'Base conversion failure' unless Bases.val(words).in_base(@words).to_base(16) == number.to_s
+      sanity = Bases.val(words).in_base(@words).to_base(16)
+      sanity.prepend('0') while sanity.length < 22
+      raise Fail, 'Base conversion failure' unless sanity == number
       # return the phrase to the user
       words.join(' ')
     rescue RbNaCl::CryptoError => e
@@ -78,6 +82,7 @@ module Sesame
       raise Fail, 'Unrecognised word used' unless words.all? { |word| @words.include?(word) }
       # convert the phrase to a hex string
       number = Bases.val(words).in_base(@words).to_base(16)
+      number.prepend('0') while number.length < 22
       @secret = _create_secret(number)
       # load the store and decrypt it
       box = RbNaCl::SimpleBox.from_secret_key(@secret)
@@ -100,6 +105,7 @@ module Sesame
     rescue RbNaCl::CryptoError => e
       raise Fail, e.messsage
     ensure
+      @item = nil
       @store = nil
       @secret = nil
     end
@@ -110,6 +116,7 @@ module Sesame
       item = _find('sesame', 'cave')
       data = @secret + item[:index].to_s
       checksum = Digest::CRC16.checksum(data).to_s(16)
+      checksum.prepend('0') while checksum.length < 4
       # convert it to a short sequence of short words
       words = Bases.val(checksum).in_base(16).to_base((0...16).to_a, array: true)
       words.map! { |num, _| @words[num.to_i] }
@@ -125,7 +132,6 @@ module Sesame
     rescue RbNaCl::CryptoError => e
       raise Fail, e.messsage
     ensure
-      @item = nil
       close
     end
 
@@ -145,6 +151,7 @@ module Sesame
       # convert the phrase to a hex string
       words.map! { |word, _| @words.index(word) }
       checksum = Bases.val(words).in_base((0...16).to_a).to_base(16)
+      checksum.prepend('0') while checksum.length < 4
       key = _create_secret(checksum)
       # load the secret and decrypt it
       box = RbNaCl::SimpleBox.from_secret_key(key)
@@ -180,9 +187,9 @@ module Sesame
       @store[service].count < 2
     end
 
-    def get(service, user, index = nil)
+    def get(service, user = nil, index = nil)
       raise Fail, 'Cannot get service details; store not open' unless open?
-      raise Fail, 'Cannot get the sesame service' if service.casecmp('sesame')
+      raise Fail, 'Cannot get the sesame service' if service.casecmp('sesame').zero?
       item = _find(service, user)
       item[:index] = index unless index.nil?
       _generate_phrase(item)
@@ -191,10 +198,10 @@ module Sesame
     def insert(service, user, index = nil)
       raise Fail, 'Cannot insert service details; store not open' unless open?
       if @store.length.positive?
-        raise Fail, 'Cannot insert the sesame service' if service.casecmp('sesame')
+        raise Fail, 'Cannot insert the sesame service' if service.casecmp('sesame').zero?
       end
       raise Fail, 'Service cannot be empty' if service.strip.length.zero?
-      raise Fail, 'User cannot be empty' if user.strip.length.zero?
+      raise Fail, 'User cannot be empty' if user.nil? || user.strip.length.zero?
       item = _find(service, user)
       raise Fail, 'Service and/or user already exists' unless item.nil?
       @store[service] ||= {}
@@ -205,10 +212,10 @@ module Sesame
       _generate_phrase(item)
     end
 
-    def update(service, user, index = nil)
+    def update(service, user = nil, index = nil)
       raise Fail, 'Cannot update service details; store not open' unless open?
       item = _find(service, user)
-      raise Fail, 'Unable to find that service and/or user' unless item.nil?
+      raise Fail, 'Unable to find that service and/or user' if item.nil?
       index = item[:index] + 1 if index.nil?
       index = 0 if index.negative?
       user = item[:user]
@@ -218,11 +225,11 @@ module Sesame
       _generate_phrase(item) unless service == 'sesame'
     end
 
-    def delete(service, user)
+    def delete(service, user = nil)
       raise Fail, 'Cannot delete service details; store not open' unless open?
-      raise Fail, 'Cannot delete the sesame service' if service.casecmp('sesame')
+      raise Fail, 'Cannot delete the sesame service' if service.casecmp('sesame').zero?
       item = _find(service, user)
-      raise Fail, 'Unable to find that service and/or user' unless item.nil?
+      raise Fail, 'Unable to find that service and/or user' if item.nil?
       user = item[:user]
       @store[service].delete(user)
       @store.delete(service) if @store[service].count.zero?
@@ -233,7 +240,7 @@ module Sesame
     protected
 
     def _create_secret(number)
-      mem = 2**30
+      mem = 2**@pow
       ops = mem / 32
       # salt is blank so we always get the same result
       salt = RbNaCl::Util.zeros(RbNaCl::PasswordHash::SCrypt::SALTBYTES)
