@@ -136,7 +136,18 @@ particular service. The `next` command allows you to do that.
 
 ```
 > next google lloyd@kranzky.com
+🧞 - "I have recast the magic words for lloyd@kranzky.com of google..."
+chore proud barrel docile
 ```
+
+You can also update the lock code in a similar way.
+
+```
+> next sesame
+🧞 - "I shall forge you a new key for locking your cave."
+```
+
+The new code will be used when you next exit from interactive mode.
 
 Removing a Service
 ------------------
@@ -145,6 +156,8 @@ You can delete services from your cave.
 
 ```
 > delete google pazu@kranzky.com
+🧞 - "These magic words for pazy@kranzky.com of google are no more..."
+lazy cape green badge
 ```
 
 Recovering a Lost Cave
