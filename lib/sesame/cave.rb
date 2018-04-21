@@ -170,6 +170,7 @@ module Sesame
       raise Fail, e.message
     ensure
       @item = nil
+      forget
     end
 
     def forget

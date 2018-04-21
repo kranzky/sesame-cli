@@ -5,6 +5,12 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 describe Sesame::Cave do
   let(:cave) { Sesame::Cave.new(Dir.tmpdir, 20) }
 
+  after do
+    cave.close if cave.open?
+    cave.forget if cave.locked?
+    File.delete(cave.path) if cave.exists?
+  end
+
   describe '#path' do
     it 'returns the location of the sesame cave' do
       expect(cave.path).to eq(File.join(Dir.tmpdir, 'sesame.cave'))
@@ -13,16 +19,10 @@ describe Sesame::Cave do
 
   describe '#item' do
     before do
-      File.delete(cave.path) if cave.exists?
-      cave.forget if cave.locked?
       phrase = cave.create!
       cave.insert('foo', 'bar')
       cave.close
       cave.open(phrase)
-    end
-
-    after do
-      cave.close if cave.open?
     end
 
     it 'returns nothing by default' do
@@ -77,9 +77,71 @@ describe Sesame::Cave do
   end
 
   describe '#exists?' do
+    context 'by default' do
+      it 'returns false' do
+        expect(cave.exists?).to be false
+      end
+    end
+
+    context 'after #create! and #close' do
+      before do
+        cave.create!
+        cave.close
+      end
+      it 'returns true' do
+        expect(cave.exists?).to be true
+      end
+    end
   end
 
   describe '#locked?' do
+    context 'by default' do
+      it 'returns false' do
+        expect(cave.locked?).to be false
+      end
+    end
+
+    context 'after #create! and #close' do
+      before do
+        cave.create!
+        cave.close
+      end
+      it 'returns false' do
+        expect(cave.locked?).to be false
+      end
+    end
+
+    context 'after #create! and #lock' do
+      before do
+        cave.create!
+        cave.lock
+      end
+      it 'returns true' do
+        expect(cave.locked?).to be true
+      end
+    end
+
+    context 'after #create! and #lock and #forget' do
+      before do
+        cave.create!
+        cave.lock
+        cave.forget
+      end
+      it 'returns false' do
+        expect(cave.locked?).to be false
+      end
+    end
+
+    context 'after #create! and #lock and #unlock' do
+      before do
+        cave.create!
+        code = cave.lock
+        cave.unlock(code)
+      end
+      it 'returns false' do
+        expect(cave.locked?).to be false
+      end
+    end
   end
 
   describe '#open?' do
