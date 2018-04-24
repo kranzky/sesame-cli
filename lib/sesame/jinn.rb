@@ -14,32 +14,32 @@ module Sesame
       _config
       _parse
       _welcome
-      @sesame = Cave.new(@opts[:path])
+      @cave = Cave.new(@opts[:path])
     rescue Fail => e
       _error(e.message)
     end
 
     # Process the users request, possibly starting an interactive session.
     def process!
-      return if @sesame.nil?
+      return if @cave.nil?
       @was_locked = false
       raise Fail, 'Cannot lock and expunge simultaneously' if @opts.lock? && @opts.expunge?
-      if @sesame.exists?
+      if @cave.exists?
         raise Fail, 'Please remove the cave before attempting to reconstruct' if @opts.reconstruct?
-        raise Fail, 'Cannot expunge lock; it doesn\'t exist' if @opts.expunge? && !@sesame.locked?
+        raise Fail, 'Cannot expunge lock; it doesn\'t exist' if @opts.expunge? && !@cave.locked?
         raise Fail, 'Please specify a command (or use interactive mode)' if !@opts.interactive? && @opts[:command].nil? && !@opts.lock? && !@opts.expunge?
-        if @sesame.locked? && @opts.expunge?
-          @sesame.forget
+        if @cave.locked? && @opts.expunge?
+          @cave.forget
           _warn('Lock expunged')
         end
-        if @sesame.locked?
+        if @cave.locked?
           _unlock
           @was_locked = true
         else
           _open
         end
       else
-        @sesame.forget if @sesame.locked?
+        @cave.forget if @cave.locked?
         _new
       end
       _process(@opts[:command])
@@ -49,12 +49,12 @@ module Sesame
           break if _prompt
         end
         if @opts.expunge?
-          @sesame.close
+          @cave.close
         else
           _lock
         end
       elsif @opts.expunge? || (!@was_locked && !@opts.lock?)
-        @sesame.close
+        @cave.close
       else
         _lock
       end
@@ -203,7 +203,7 @@ module Sesame
         _info('reconstruct')
         words = ask('🔑  ') { |q| q.echo = '*' }
       end
-      phrase = @sesame.create!(words)
+      phrase = @cave.create!(words)
       if words.nil?
         _info('new')
         _show(phrase)
@@ -215,26 +215,26 @@ module Sesame
     def _open
       _info('open')
       words = ask('🔑  ') { |q| q.echo = '*' }
-      @sesame.open(words)
-      _info('path', path: @sesame.path)
+      @cave.open(words)
+      _info('path', path: @cave.path)
     end
 
     def _unlock
       _info('unlock')
       key = ask('🔑  ') { |q| q.echo = '*' }
-      @sesame.unlock(key)
-      _info('path', path: @sesame.path)
+      @cave.unlock(key)
+      _info('path', path: @cave.path)
     end
 
     def _forget
       _info('forgot')
-      @sesame.forget
+      @cave.forget
     end
 
     def _list
       _info('list')
       if @opts[:service].nil? || @opts[:service].length.zero?
-        @sesame.index.each do |service, users|
+        @cave.index.each do |service, users|
           next if service == 'sesame'
           if users.count > 1
             say("#{service} (#{users.count})")
@@ -243,7 +243,7 @@ module Sesame
           end
         end
       else
-        users = @sesame.index[@opts[:service]]
+        users = @cave.index[@opts[:service]]
         raise Fail, 'No such service found, you must be thinking of some other cave' if users.nil? || @opts[:service] == 'sesame'
         users.sort.each do |user, _|
           say(user)
@@ -252,37 +252,37 @@ module Sesame
     end
 
     def _get
-      phrase = @sesame.get(*_question, @opts[:offset])
-      _info('get', @sesame.item)
+      phrase = @cave.get(*_question, @opts[:offset])
+      _info('get', @cave.item)
       _show(phrase)
     end
 
     def _add
-      phrase = @sesame.insert(*_question(true), @opts[:offset])
-      _info('add', @sesame.item)
+      phrase = @cave.insert(*_question(true), @opts[:offset])
+      _info('add', @cave.item)
       _show(phrase)
     end
 
     def _next
-      phrase = @sesame.update(*_question, @opts[:offset])
+      phrase = @cave.update(*_question, @opts[:offset])
       if phrase.nil?
         _info('next_key')
         @was_locked = false
         _set_opt(:lock, true)
       else
-        _info('next', @sesame.item)
+        _info('next', @cave.item)
         _show(phrase)
       end
     end
 
     def _delete
-      phrase = @sesame.delete(*_question)
+      phrase = @cave.delete(*_question)
       _info('delete')
       _show(phrase)
     end
 
     def _lock
-      key = @sesame.lock
+      key = @cave.lock
       return if @was_locked
       _info('lock')
       _show(key)
@@ -348,7 +348,7 @@ module Sesame
         _info('service')
         service = ask('🏷  ')
       end
-      if user.nil? && (user_required || !@sesame.unique?(service))
+      if user.nil? && (user_required || !@cave.unique?(service))
         _info('user')
         user = ask('👤  ')
       end
