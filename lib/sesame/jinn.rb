@@ -8,16 +8,18 @@ module Sesame
   # TODO
   class Jinn
     def initialize(opts)
+      I18n.load_path = Dir[File.join(File.dirname(__FILE__), 'lang', '*yml')]
       @opts = opts
+      _config
       _parse
       _welcome
       @sesame = Cave.new(@opts[:path])
-      I18n.load_path = Dir[File.join(File.dirname(__FILE__), 'lang', '*yml')]
     rescue Fail => e
       _error(e.message)
     end
 
     def process!
+      return if @sesame.nil?
       @was_locked = false
       raise Fail, 'Cannot lock and expunge simultaneously' if @opts.lock? && @opts.expunge?
       if @sesame.exists?
@@ -49,7 +51,7 @@ module Sesame
         else
           _lock
         end
-      elsif @opts.expunge? || (!@was_locked && !@opts[:lock])
+      elsif @opts.expunge? || (!@was_locked && !@opts.lock?)
         @sesame.close
       else
         _lock
@@ -73,8 +75,36 @@ module Sesame
       WELCOME
     end
 
+    def _load_config(base = '.', name = '.sesamerc')
+      path = File.join(base, name)
+      if File.exist?(path)
+        JSON.parse(File.read(path), symbolize_names: true)
+      elsif name == '.sesamerc'
+        _load_config(base, 'sesame.cfg')
+      elsif base == '.'
+        _load_config(Dir.home)
+      else
+        {}
+      end
+    rescue JSON::ParserError => e
+      raise Fail, "#{path}: #{e.message}"
+    end
+
+    def _config
+      config = _load_config
+      _set_opt(:echo, config[:echo] == 'true') unless @opts.echo?
+      _set_opt(:interactive, config[:interactive] == 'true') unless @opts.interactive?
+      _set_opt(:quiet, config[:quiet] == 'true') unless @opts.quiet?
+      config[:path] ||= ENV.fetch('SESAME_PATH', '.')
+      _set_opt(:path, config[:path]) if @opts[:path].nil?
+      _set_opt(:path, File.expand_path(@opts[:path]))
+    end
+
     def _parse
-      _set_path
+      unless Dir.exist?(@opts[:path])
+        _error("No such directory: #{@opts[:path]}")
+        exit 2
+      end
       _set_command('list') if @opts.list?
       _set_command('add') if @opts.add?
       _set_command('get') if @opts.get?
@@ -82,31 +112,11 @@ module Sesame
       _set_command('delete') if @opts.delete?
     end
 
-    def _set_path
-      # set @opts[:path] if nil from .sesamerc and then $SESAME_PATH and then current dir
-      if @opts[:path].nil?
-        @opts[:path] = _load_config || ENV.fetch('SESAME_PATH', '.')
-      end
-      @opts[:path] = File.expand_path(@opts[:path])
-      return if Dir.exist?(@opts[:path])
-      say("No such directory: #{@opts[:path]}")
-      exit 2
-    end
-
-    def _load_config(base = '.')
-      path = File.join(base, '.sesamerc')
-      if File.exist?(path)
-        File.read(path)
-      elsif base == '.'
-        _load_config(Dir.home)
-      end
-    end
-
     def _set_command(name)
       if @opts[:command].nil?
-        @opts[:command] = name
+        _set_opt(:command, name)
       else
-        say("Cannot execute command #{name}; #{@opts[:command]} already specified!")
+        _error("Cannot #{name} and #{@opts[:command]}")
         exit 2
       end
     end
@@ -256,7 +266,7 @@ module Sesame
       if phrase.nil?
         _info('next_key')
         @was_locked = false
-        @opts[:lock] = true
+        _set_opt(:lock, true)
       else
         _info('next', @sesame.item)
         _show(phrase)
@@ -308,16 +318,25 @@ module Sesame
       end
     end
 
+    def _set_opt(name, val)
+      return unless val
+      @opts.option(name).ensure_call(val)
+    end
+
     def _set_opts(args)
       args = args.split(' ').map(&:strip).map(&:downcase)
       return if args.count.zero?
-      @opts[:service] = args.first if args.count < 3
-      @opts[:user] = args.last if args.count == 2
+      _set_opt(:service, args.first) if args.count < 3
+      _set_opt(:user, args.last) if args.count == 2
+    end
+
+    def _clear_opt(name)
+      @opts.option(name).reset
     end
 
     def _clear_opts
-      @opts[:service] = nil
-      @opts[:user] = nil
+      _clear_opt(:service)
+      _clear_opt(:user)
     end
 
     def _question(user_required = false)

@@ -181,20 +181,21 @@ Run with the `--help` argument to view all options.
 $ sesame --help
 usage: ./bin/sesame [options]
     -p, --path         the path to the sesame cave; overrides $SESAME_PATH and .sesamerc
-    -s, --service      the name of the service (e.g. Twitter)
-    -u, --user         the username for the given service (e.g. user@test.com)
-    -o, --offset       the password index for the service and username (defaults to 0)
+    -q, --quiet        silence the welcome banner and the jinn
     -e, --echo         display passwords in plain text instead of adding to the clipboard
-    -i, --interactive  launch an interactive cli, allowing commands to be issued
     -r, --reconstruct  reconstruct a sesame cave from an existing passphrase
-    -x, --expunge      remove the temporary lock; the full passphrase will be required
+    -k, --lock         create a temporary lock; no passphrase required on next run
+    -x, --expunge      remove the temporary lock; full passphrase required on next run
+    -i, --interactive  launch an interactive cli, allowing commands to be issued
     -c, --command      the command to execute; one of: list, get, add, next, delete
     -l, --list         show all services and usernames
     -a, --add          add a new service and username
-    -g, --get          get the current password for an existing service and username
-    -n, --next         generate a new password for an existing service and username
+    -g, --get          get the password for a service and username
+    -n, --next         generate a new password for a service and username
     -d, --delete       remove an existing service and username
-    -q, --quiet        silence the jinn
+    -s, --service      the name of the service (e.g. Facebook)
+    -u, --user         the username for the service (e.g. user@test.com)
+    -o, --offset       the password offset to use (overrides current)
     -v, --version      print the version and exit
     -h, --help         all of that up there ^
 ```
@@ -219,15 +220,13 @@ stored.
 
 Sesame will also look for a file named `.sesamerc` or `sesame.cfg` in the
 current directory and in your home directory. This file should be in the JSON
-format, and can specify the `path`, `user`, `echo`, `interactive` and `quiet`
-options. For example, here is the configuration file used by Lloyd Kranzky:
+format, and can specify the `path`, `echo`, `interactive` and `quiet` options.
+For example:
 
 ```
   {
     "path": "~/Dropbox",
-    "user": "lloyd@kranzky.com",
-    "echo": "false",
-    "interactive": "false",
+    "interactive": "true",
     "quiet": "true"
   }
 ```
