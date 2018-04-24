@@ -183,7 +183,7 @@ module Sesame
 
     def index
       raise Fail, 'Cannot list the store; it\'s not open' unless open?
-      @store
+      @store.sort.to_h
     end
 
     def unique?(service)

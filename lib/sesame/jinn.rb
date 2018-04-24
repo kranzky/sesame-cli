@@ -23,9 +23,9 @@ module Sesame
       @was_locked = false
       raise Fail, 'Cannot lock and expunge simultaneously' if @opts.lock? && @opts.expunge?
       if @sesame.exists?
-        raise Fail, 'Please specify a command (or use interactive mode)' if !@opts.interactive? && @opts[:command].nil? && !@opts.lock? && !@opts.expunge?
         raise Fail, 'Please remove the cave before attempting to reconstruct' if @opts.reconstruct?
         raise Fail, 'Cannot expunge lock; it doesn\'t exist' if @opts.expunge? && !@sesame.locked?
+        raise Fail, 'Please specify a command (or use interactive mode)' if !@opts.interactive? && @opts[:command].nil? && !@opts.lock? && !@opts.expunge?
         if @sesame.locked? && @opts.expunge?
           @sesame.forget
           _warn('Lock expunged')
@@ -87,14 +87,14 @@ module Sesame
         {}
       end
     rescue JSON::ParserError => e
-      raise Fail, "#{path}: #{e.message}"
+      raise Fail, "#{path} is not valid JSON"
     end
 
     def _config
       config = _load_config
-      _set_opt(:echo, config[:echo] == 'true') unless @opts.echo?
-      _set_opt(:interactive, config[:interactive] == 'true') unless @opts.interactive?
-      _set_opt(:quiet, config[:quiet] == 'true') unless @opts.quiet?
+      _set_opt(:echo, config[:echo]) unless @opts.echo?
+      _set_opt(:interactive, config[:interactive]) unless @opts.interactive?
+      _set_opt(:quiet, config[:quiet]) unless @opts.quiet?
       config[:path] ||= ENV.fetch('SESAME_PATH', '.')
       _set_opt(:path, config[:path]) if @opts[:path].nil?
       _set_opt(:path, File.expand_path(@opts[:path]))
@@ -243,7 +243,7 @@ module Sesame
       else
         users = @sesame.index[@opts[:service]]
         raise Fail, 'No such service found, you must be thinking of some other cave' if users.nil? || @opts[:service] == 'sesame'
-        users.each do |user, _|
+        users.sort.each do |user, _|
           say(user)
         end
       end

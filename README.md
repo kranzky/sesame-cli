@@ -101,9 +101,9 @@ Listing Services
 ```
 > list
 🧞 - "Behold! Tremble in awe at the greatness of these heroes!"
-twitter
-facebook
+facebook (lloyd@kranzky.com)
 google (2)
+twitter (kranzky)
 ```
 
 If several user accounts exist for the same service, a number will be displayed
@@ -226,8 +226,8 @@ For example:
 ```
   {
     "path": "~/Dropbox",
-    "interactive": "true",
-    "quiet": "true"
+    "interactive": false,
+    "quiet": true
   }
 ```
 
