@@ -5,8 +5,9 @@ require 'i18n'
 require 'clipboard'
 
 module Sesame
-  # TODO
+  # The Jinn class is wholly responsible for interacting with the terminal.
   class Jinn
+    # Pass in parsed command-line options as a Slop instance.
     def initialize(opts)
       I18n.load_path = Dir[File.join(File.dirname(__FILE__), 'lang', '*yml')]
       @opts = opts
@@ -18,6 +19,7 @@ module Sesame
       _error(e.message)
     end
 
+    # Process the users request, possibly starting an interactive session.
     def process!
       return if @sesame.nil?
       @was_locked = false
@@ -86,7 +88,7 @@ module Sesame
       else
         {}
       end
-    rescue JSON::ParserError => e
+    rescue JSON::ParserError
       raise Fail, "#{path} is not valid JSON"
     end
 

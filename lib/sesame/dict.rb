@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 module Sesame
-  # TODO
+  # The Dict class provides the list of words used for generating passphrases.
   class Dict
+    # Return an array of words.
     def self.load
       _words.split("\n").map(&:strip)
     end

@@ -8,10 +8,13 @@ require 'rbnacl/libsodium'
 require 'json'
 
 module Sesame
-  # TODO
+  # The Cave class implements a simple password manager.
   class Cave
     attr_accessor :item
 
+    # Initialize with the path where the cave file will be stored. Optionally
+    # specify the complexity of passphrase generation (only change this to lower
+    # values to make tests run more quickly).
     def initialize(path, pow = 30)
       @words = Dict.load
       raise Fail, 'Unexpected dictionary length' unless @words.length == 2048
@@ -23,26 +26,34 @@ module Sesame
       @pow = pow
     end
 
+    # Return the full path of the cave file.
     def path
       @cave
     end
 
+    # True if the cave file exists; false otherwise.
     def exists?
       File.exist?(@cave)
     end
 
+    # True if the lock file exists; false otherwise.
     def locked?
       File.exist?(@lock)
     end
 
+    # True if the cave file has been loaded into memory and decrypted.
     def open?
       !@store.nil?
     end
 
+    # True if the cave has been modified and needs to be persisted.
     def dirty?
       @dirty
     end
 
+    # Create a new cave. If the optional phrase is not supplied, then a random
+    # phrase will be returned (this is preferable; users should not select their
+    # own passphrase, because humans can't random).
     def create!(phrase = nil)
       raise Fail, 'Cannot create; store already exists' if exists? || locked? || open?
       @store = {}
@@ -74,6 +85,7 @@ module Sesame
       raise Fail, e.message
     end
 
+    # Open an existing cave, using the supplied phrase to decrypt its contents.
     def open(phrase)
       raise Fail, 'Cannot open store' if !exists? || locked? || open?
       # make sure the phrase is 8 words long and that the words are valid
@@ -94,6 +106,7 @@ module Sesame
       raise Fail, e.message
     end
 
+    # Close the cave, encrypting and saving its contents if dirty.
     def close
       raise Fail, 'Cannot close store; it\'s not open' unless open?
       return unless dirty?
@@ -110,6 +123,8 @@ module Sesame
       @secret = nil
     end
 
+    # Lock the cave by encrypting and saving the secret to a lock file, and then
+    # closing the cave (which may mean saving it, if it was dirty).
     def lock
       raise Fail, 'Cannot lock cave; it\'s not open' unless open?
       # create a 16-bit checksum of the secret key
@@ -136,6 +151,8 @@ module Sesame
       close
     end
 
+    # Unlock the cave, by loading and decrypting the secret using the supplied
+    # phrase, and then using that to load and decrypt the cave itself.
     def unlock(phrase)
       raise Fail, 'Cannot unlock store; it\'s not locked' unless locked?
       raise Fail, 'Cannot unlock store; it\'s already open' if open?
@@ -177,21 +194,29 @@ module Sesame
       forget if locked?
     end
 
+    # Remove the lock file.
     def forget
       File.delete(@lock)
     end
 
+    # Return the store. Note that this doesn't expose any super-sensitive data;
+    # the store is just a hash of service name, usernames for each service, and
+    # a nonce for each username. These are combined with the secret (which is
+    # itself derived from the users passphrase) to create the password for each
+    # service and username.
     def index
       raise Fail, 'Cannot list the store; it\'s not open' unless open?
       @store.sort.to_h
     end
 
+    # True if a particular service has exactly one username.
     def unique?(service)
       raise Fail, 'Cannot test service uniqueness; store not open' unless open?
       return if @store[service].nil?
       @store[service].count < 2
     end
 
+    # Generate and return the passpgrase for a service and username.
     def get(service, user = nil, index = nil)
       raise Fail, 'Cannot get service details; store not open' unless open?
       raise Fail, 'Cannot get the sesame service' if service.casecmp('sesame').zero?
@@ -200,6 +225,7 @@ module Sesame
       _generate_phrase(item)
     end
 
+    # Insert a new service and username, then generate and return the passphrase.
     def insert(service, user, index = nil)
       raise Fail, 'Cannot insert service details; store not open' unless open?
       if @store.length.positive?
@@ -217,6 +243,8 @@ module Sesame
       _generate_phrase(item)
     end
 
+    # Update the nonce for a service and username, then generate and return the
+    # passphrase.
     def update(service, user = nil, index = nil)
       raise Fail, 'Cannot update service details; store not open' unless open?
       item = _find(service, user)
@@ -230,6 +258,7 @@ module Sesame
       _generate_phrase(item) unless service == 'sesame'
     end
 
+    # Remove a service and username, then generate and return the passphrase.
     def delete(service, user = nil)
       raise Fail, 'Cannot delete service details; store not open' unless open?
       raise Fail, 'Cannot delete the sesame service' if service.casecmp('sesame').zero?
