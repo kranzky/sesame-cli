@@ -23,6 +23,7 @@ en:
   lock_clip: 'Store locked. Unlock code copied to clipboard.'
   service: 'Enter service name:'
   user: 'Enter user name:'
+  warning: 'Warning: %{details}.'
   jinn:
     error: '🧞 - "A thousand apologies! %{details}."'
     open: '🧞 - "Open sesame! Please incant the magic words..."'
@@ -48,3 +49,4 @@ en:
     lock_clip: '🧞 - "I have secured your treasure. The key is in your clipboard."'
     service: '🧞 - "What be the name of the service?"'
     user: '🧞 - "And what be the name of the user?"'
+    warn: '🧞 - "Caution, master! %{details}."'

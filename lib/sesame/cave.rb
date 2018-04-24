@@ -114,7 +114,8 @@ module Sesame
       raise Fail, 'Cannot lock cave; it\'s not open' unless open?
       # create a 16-bit checksum of the secret key
       item = _find('sesame', 'cave')
-      data = @secret + item[:index].to_s
+      data = @secret.dup
+      data << item[:index]
       checksum = Digest::CRC16.checksum(data).to_s(16)
       checksum.prepend('0') while checksum.length < 4
       # convert it to a short sequence of short words
@@ -163,14 +164,17 @@ module Sesame
       data = box.decrypt(encrypted_data)
       @store = JSON.parse(data)
       item = _find('sesame', 'cave')
-      data = @secret + item[:index].to_s
-      raise 'Checksum failure' unless Digest::CRC16.checksum(data).to_s(16) == checksum
+      data = @secret.dup
+      data << item[:index]
+      sanity = Digest::CRC16.checksum(data).to_s(16)
+      sanity.prepend('0') while sanity.length < 4
+      raise 'Checksum failure' unless sanity == checksum
       @dirty = false
     rescue RbNaCl::CryptoError => e
       raise Fail, e.message
     ensure
       @item = nil
-      forget
+      forget if locked?
     end
 
     def forget

@@ -18,13 +18,19 @@ module Sesame
     end
 
     def process!
-      was_locked = false
+      @was_locked = false
+      raise Fail, 'Cannot lock and expunge simultaneously' if @opts.lock? && @opts.expunge?
       if @sesame.exists?
-        @sesame.forget if @sesame.locked? && @opts.expunge?
+        raise Fail, 'Please specify a command (or use interactive mode)' if !@opts.interactive? && @opts[:command].nil? && !@opts.lock? && !@opts.expunge?
+        raise Fail, 'Please remove the cave before attempting to reconstruct' if @opts.reconstruct?
+        raise Fail, 'Cannot expunge lock; it doesn\'t exist' if @opts.expunge? && !@sesame.locked?
+        if @sesame.locked? && @opts.expunge?
+          @sesame.forget
+          _warn('Lock expunged')
+        end
         if @sesame.locked?
           _unlock
-          @sesame.forget
-          was_locked = true
+          @was_locked = true
         else
           _open
         end
@@ -33,7 +39,7 @@ module Sesame
         _new
       end
       _process(@opts[:command])
-      if @opts[:command].nil? || @opts.interactive?
+      if @opts.interactive?
         loop do
           say("\n")
           break if _prompt
@@ -41,15 +47,17 @@ module Sesame
         if @opts.expunge?
           @sesame.close
         else
-          _lock(was_locked)
+          _lock
         end
-      elsif was_locked
-        _lock(true)
-      else
+      elsif @opts.expunge? || (!@was_locked && !@opts[:lock])
         @sesame.close
+      else
+        _lock
       end
     rescue Fail => e
       _error(e.message)
+    rescue SystemExit, Interrupt
+      _error('Stopped by user')
     end
 
     protected
@@ -117,7 +125,7 @@ module Sesame
       when :delete
         _delete
       else
-        _error
+        _error('Command not recognised')
       end
     end
 
@@ -151,6 +159,7 @@ module Sesame
           done = true
         end
       end
+      _clear_opts
       done
     rescue Fail => e
       _error(e.message)
@@ -164,6 +173,16 @@ module Sesame
           _trans('jinn.error', details: details)
         end
       say(HighLine.color(message, :bold, :red))
+    end
+
+    def _warn(details)
+      message =
+        if @opts[:quiet]
+          _trans('warn', details: details)
+        else
+          _trans('jinn.warn', details: details)
+        end
+      say(HighLine.color(message, :bold, :yellow))
     end
 
     def _new
@@ -208,7 +227,7 @@ module Sesame
           if users.count > 1
             say("#{service} (#{users.count})")
           else
-            say(service)
+            say("#{service} (#{users.first.first})")
           end
         end
       else
@@ -236,6 +255,8 @@ module Sesame
       phrase = @sesame.update(*_question, @opts[:offset])
       if phrase.nil?
         _info('next_key')
+        @was_locked = false
+        @opts[:lock] = true
       else
         _info('next', @sesame.item)
         _show(phrase)
@@ -248,9 +269,9 @@ module Sesame
       _show(phrase)
     end
 
-    def _lock(silent = false)
+    def _lock
       key = @sesame.lock
-      return if silent
+      return if @was_locked
       _info('lock')
       _show(key)
     end
@@ -292,6 +313,11 @@ module Sesame
       return if args.count.zero?
       @opts[:service] = args.first if args.count < 3
       @opts[:user] = args.last if args.count == 2
+    end
+
+    def _clear_opts
+      @opts[:service] = nil
+      @opts[:user] = nil
     end
 
     def _question(user_required = false)

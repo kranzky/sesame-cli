@@ -8,20 +8,21 @@ opts =
   begin
     Slop.parse do |o|
       o.string '-p', '--path', 'the path to the sesame cave; overrides $SESAME_PATH and .sesamerc'
-      o.string '-s', '--service', 'the name of the service (e.g. Twitter)'
-      o.string '-u', '--user', 'the username for the given service (e.g. user@test.com)'
-      o.integer '-o', '--offset', 'the password index for the service and username (defaults to 0)'
+      o.bool '-q', '--quiet', 'silence the welcome banner and the jinn'
       o.bool '-e', '--echo', 'display passwords in plain text instead of adding to the clipboard'
-      o.bool '-i', '--interactive', 'launch an interactive cli, allowing commands to be issued'
       o.bool '-r', '--reconstruct', 'reconstruct a sesame cave from an existing passphrase'
-      o.bool '-x', '--expunge', 'remove the temporary lock; the full passphrase will be required'
+      o.bool '-k', '--lock', 'create a temporary lock; no passphrase required on next run'
+      o.bool '-x', '--expunge', 'remove the temporary lock; full passphrase required on next run'
+      o.bool '-i', '--interactive', 'launch an interactive cli, allowing commands to be issued'
       o.string '-c', '--command', 'the command to execute; one of: list, get, add, next, delete'
       o.bool '-l', '--list', 'show all services and usernames'
       o.bool '-a', '--add', 'add a new service and username'
-      o.bool '-g', '--get', 'get the current password for an existing service and username'
-      o.bool '-n', '--next', 'generate a new password for an existing service and username'
+      o.bool '-g', '--get', 'get the password for a service and username'
+      o.bool '-n', '--next', 'generate a new password for a service and username'
       o.bool '-d', '--delete', 'remove an existing service and username'
-      o.bool '-q', '--quiet', 'silence the jinn'
+      o.string '-s', '--service', 'the name of the service (e.g. Facebook)'
+      o.string '-u', '--user', 'the username for the service (e.g. user@test.com)'
+      o.integer '-o', '--offset', 'the password offset to use (overrides current)'
       o.on '-v', '--version', 'print the version and exit' do
         say(File.read(File.join(File.dirname(__FILE__), '..', 'VERSION')))
         exit
