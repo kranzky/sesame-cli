@@ -4,7 +4,7 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe Sesame::Jinn do
   let(:opts) { double('opts') }
-  let(:jinn) { Sesame::Jinn.new(opts) }
+  let(:jinn) { Sesame::Jinn.new(opts, 20) }
 
   before do
     option = double('option')

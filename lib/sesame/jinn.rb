@@ -7,14 +7,15 @@ require 'clipboard'
 module Sesame
   # The Jinn class is wholly responsible for interacting with the terminal.
   class Jinn
-    # Pass in parsed command-line options as a Slop instance.
-    def initialize(opts)
+    # Pass in parsed command-line options as a Slop instance. The optional pow
+    # parameter should only be used to speed up tests.
+    def initialize(opts, pow = 30)
       I18n.load_path = Dir[File.join(File.dirname(__FILE__), 'lang', '*yml')]
       @opts = opts
       _config
       _parse
       _welcome
-      @cave = Cave.new(@opts[:path])
+      @cave = Cave.new(@opts[:path], pow)
     rescue Fail => e
       _error(e.message)
     end

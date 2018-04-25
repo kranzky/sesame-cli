@@ -121,6 +121,7 @@ module Sesame
       @item = nil
       @store = nil
       @secret = nil
+      @dirty = false
     end
 
     # Lock the cave by encrypting and saving the secret to a lock file, and then
@@ -212,11 +213,11 @@ module Sesame
     # True if a particular service has exactly one username.
     def unique?(service)
       raise Fail, 'Cannot test service uniqueness; store not open' unless open?
-      return if @store[service].nil?
+      raise Fail, 'No such service' if @store[service].nil?
       @store[service].count < 2
     end
 
-    # Generate and return the passpgrase for a service and username.
+    # Generate and return the passphrase for a service and username.
     def get(service, user = nil, index = nil)
       raise Fail, 'Cannot get service details; store not open' unless open?
       raise Fail, 'Cannot get the sesame service' if service.casecmp('sesame').zero?
@@ -233,8 +234,7 @@ module Sesame
       end
       raise Fail, 'Service cannot be empty' if service.strip.length.zero?
       raise Fail, 'User cannot be empty' if user.nil? || user.strip.length.zero?
-      item = _find(service, user)
-      raise Fail, 'Service and/or user already exists' unless item.nil?
+      raise Fail, 'User already exists for that service' unless @store[service].nil? || @store[service][user].nil?
       @store[service] ||= {}
       @store[service][user] = index || 0
       @dirty = true
@@ -248,7 +248,6 @@ module Sesame
     def update(service, user = nil, index = nil)
       raise Fail, 'Cannot update service details; store not open' unless open?
       item = _find(service, user)
-      raise Fail, 'Unable to find that service and/or user' if item.nil?
       index = item[:index] + 1 if index.nil?
       index = 0 if index.negative?
       user = item[:user]
@@ -263,7 +262,6 @@ module Sesame
       raise Fail, 'Cannot delete service details; store not open' unless open?
       raise Fail, 'Cannot delete the sesame service' if service.casecmp('sesame').zero?
       item = _find(service, user)
-      raise Fail, 'Unable to find that service and/or user' if item.nil?
       user = item[:user]
       @store[service].delete(user)
       @store.delete(service) if @store[service].count.zero?
@@ -284,9 +282,10 @@ module Sesame
     end
 
     def _find(service, user)
-      return nil if service.nil? || @store[service].nil?
+      raise Fail, 'No such service' if service.nil? || @store[service].nil?
       @item =
         if user.nil?
+          raise Fail, 'No unique user for service' unless unique?(service)
           item = @store[service].first
           {
             service: service,
@@ -294,7 +293,7 @@ module Sesame
             index: item.last
           }
         elsif @store[service][user].nil?
-          nil
+          raise Fail, 'No such service or user'
         else
           index = @store[service][user]
           {
