@@ -20,7 +20,7 @@ argument is used to display sensitive information such as the generated
 passphrase; omit `--echo` to have this copied to the clipboard instead.
 
 ```
-$ gem install sesame
+$ gem install sesame-cli
 $ sesame --echo --interactive
 ╔═════════════════════════════════════╗
 ║ ┏━━━┓ ┏━━━┓ ┏━━━┓  ┏━┓  ┏┓ ┏┓ ┏━━━┓ ║
