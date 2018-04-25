@@ -4,11 +4,15 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe Sesame::Cave do
   let(:cave) { Sesame::Cave.new(Dir.tmpdir, 20) }
+  let(:deep_cave) { Sesame::Cave.new(Dir.tmpdir) }
 
   after do
     cave.close if cave.open?
     cave.forget if cave.locked?
     File.delete(cave.path) if cave.exists?
+    deep_cave.close if deep_cave.open?
+    deep_cave.forget if deep_cave.locked?
+    File.delete(deep_cave.path) if deep_cave.exists?
   end
 
   describe '#path' do
@@ -282,14 +286,30 @@ describe Sesame::Cave do
   end
 
   describe '#create!' do
-    before do
-      cave.create!
+    context 'by default' do
+      before do
+        cave.create!
+      end
+
+      it 'creates a new cave' do
+        expect(cave.exists?).to be false
+        expect(cave.locked?).to be false
+        expect(cave.open?).to be true
+      end
     end
 
-    it 'creates a new cave' do
-      expect(cave.exists?).to be false
-      expect(cave.locked?).to be false
-      expect(cave.open?).to be true
+    context 'with a pass phrase' do
+      before do
+        deep_cave.create!('mammal glue wage paper store detail weave date')
+        deep_cave.insert('twitter', 'kranzky')
+      end
+
+      it 'reconstructs an old cave' do
+        expect(deep_cave.exists?).to be false
+        expect(deep_cave.locked?).to be false
+        expect(deep_cave.open?).to be true
+        expect(deep_cave.get('twitter')).to eq('nylon sand slice party')
+      end
     end
   end
 
@@ -336,18 +356,36 @@ describe Sesame::Cave do
   end
 
   describe '#unlock' do
-    before do
-      cave.create!
-      cave.insert('foo', 'bar')
-      phrase = cave.lock
-      cave.unlock(phrase)
-      cave.get('foo')
+    context 'with a word phrase' do
+      before do
+        cave.create!
+        cave.insert('foo', 'bar')
+        phrase = cave.lock
+        cave.unlock(phrase)
+        cave.get('foo')
+      end
+      it 'unlocks a cave' do
+        expect(cave.exists?).to be true
+        expect(cave.locked?).to be false
+        expect(cave.open?).to be true
+        expect(cave.item[:user]).to eq('bar')
+      end
     end
-    it 'unlocks a cave' do
-      expect(cave.exists?).to be true
-      expect(cave.locked?).to be false
-      expect(cave.open?).to be true
-      expect(cave.item[:user]).to eq('bar')
+
+    context 'with a character code' do
+      before do
+        cave.create!
+        cave.insert('foo', 'bar')
+        code = cave.lock.split(' ').map { |w| w[0] }.join
+        cave.unlock(code)
+        cave.get('foo')
+      end
+      it 'unlocks a cave' do
+        expect(cave.exists?).to be true
+        expect(cave.locked?).to be false
+        expect(cave.open?).to be true
+        expect(cave.item[:user]).to eq('bar')
+      end
     end
   end
 

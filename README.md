@@ -42,7 +42,7 @@ mammal glue wage paper store detail weave date
 
 > exit
 🧞 - "I have secured your treasure with this key..."
-sky tea ant ice
+tea old ant ice
 ```
 
 You will notice that Sesame enters interactive mode when the `--interactive`
