@@ -4,7 +4,7 @@ require 'tmpdir'
 require 'securerandom'
 require 'bases'
 require 'digest/crc16'
-require 'rbnacl/libsodium'
+require 'rbnacl'
 require 'json'
 
 module Sesame

@@ -11,8 +11,8 @@ rescue Bundler::BundlerError => e
 end
 require 'rake'
 
-require 'jeweler'
-Jeweler::Tasks.new do |gem|
+require 'juwelier'
+Juwelier::Tasks.new do |gem|
   gem.name = 'sesame-cli'
   gem.homepage = 'http://github.com/kranzky/sesame-cli'
   gem.license = 'UNLICENSE'
@@ -22,7 +22,7 @@ Jeweler::Tasks.new do |gem|
   gem.authors = ['Jason Hutchens', 'Jack Casey']
   gem.required_ruby_version = '~> 2.5'
 end
-Jeweler::RubygemsDotOrgTasks.new
+Juwelier::RubygemsDotOrgTasks.new
 
 require 'rspec/core'
 require 'rspec/core/rake_task'
