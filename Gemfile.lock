@@ -68,7 +68,7 @@ GEM
     rake (13.0.0)
     rbnacl (7.1.0)
       ffi
-    rdoc (6.2.0)
+    rdoc (6.3.2)
     rspec (3.9.0)
       rspec-core (~> 3.9.0)
       rspec-expectations (~> 3.9.0)
